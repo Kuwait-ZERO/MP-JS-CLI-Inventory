@@ -1,14 +1,20 @@
 import inquirer from "inquirer";
-
-import { addBook, deleteBook, updateBook, viewBooks } from "./controllers.js";
+import {
+  addstudent,
+  deleteStudent,
+  updateStudent,
+  viewStudents,
+  searchStudent, // Import the new search function
+} from "./controllers.js";
 
 function showMenu() {
   console.log("\n");
   const choices = [
-    { name: "Add a book", value: "add" },
-    { name: "Update a book", value: "update" },
-    { name: "Delete a book", value: "delete" },
-    { name: "View all books", value: "list" },
+    { name: "Add a student", value: "add" },
+    { name: "Update a student", value: "update" },
+    { name: "Delete a student", value: "delete" },
+    { name: "View all students", value: "list" },
+    { name: "Search for a student", value: "search" }, // Add new search option
     { name: "Exit", value: "exit" },
   ];
   inquirer
@@ -23,16 +29,19 @@ function showMenu() {
     .then((answers) => {
       switch (answers.action) {
         case "add":
-          addBook();
+          addstudent();
           break;
         case "update":
-          updateBook();
+          updateStudent();
           break;
         case "delete":
-          deleteBook();
+          deleteStudent();
           break;
         case "list":
-          viewBooks();
+          viewStudents();
+          break;
+        case "search":
+          searchStudent();
           break;
         case "exit":
           console.log("Exiting the program.");

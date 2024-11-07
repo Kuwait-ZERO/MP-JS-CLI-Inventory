@@ -1,41 +1,51 @@
 import inquirer from "inquirer";
 
-import Book from "./Book.js";
+import Student from "./Student.js";
 import showMenu from "./menu.js";
 
-export function addBook() {
+export function addstudent() {
   inquirer
     .prompt([
-      { name: "title", message: "Enter book title:" },
-      { name: "author", message: "Enter the author name:" },
-      { name: "genre", message: "Enter the genre:" },
+      { name: "firstName", message: "Enter student first name:" },
+      { name: "lastName", message: "Enter the student last name:" },
       {
-        name: "published",
+        name: "grade",
+        message: "Enter the grade:",
+        validate: (grade) => {
+          const gradeNum = parseInt(grade, 10);
+          if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 120) {
+            return "Please enter a valid grade between 0 and 120.";
+          }
+          return true;
+        },
+      },
+      {
+        name: "yearOfBirth",
         type: "input",
-        message: "Enter the publishing year:",
+        message: "Enter the year of birth:",
         validate: (year) => {
           const yearNum = parseInt(year, 10);
-          if (isNaN(yearNum)) {
-            return "Please enter a valid number for the publishing year.";
+          if (isNaN(yearNum) || yearNum < 1900) {
+            return "Please enter a year of birth.";
           }
           return (
             yearNum <= new Date().getFullYear() ||
-            "This book was published in the future??"
+            "This studnent was born in the future??"
           );
         },
       },
     ])
-    .then((book) => {
-      Book.create(book);
-      console.log(`Added ${book.title} by ${book.author}.`);
+    .then((student) => {
+      Student.create(student);
+      console.log(`${student.firstName} ${student.lastName} was added.`);
       showMenu();
     });
 }
 
-export function updateBook() {
-  const books = Book.find();
-  if (books.length === 0) {
-    console.log("No books available to update.");
+export function updateStudent() {
+  const students = Student.find();
+  if (students.length === 0) {
+    console.log("No students available to update.");
     return showMenu();
   }
 
@@ -43,31 +53,35 @@ export function updateBook() {
     .prompt([
       {
         type: "list",
-        name: "bookId",
-        message: "Choose a book to update:",
-        choices: books.map((book) => ({ name: book.title, value: book.id })),
+        name: "studentId",
+        message: "Choose a student to update:",
+        choices: students.map((student) => ({
+          name: student.firstName,
+          value: student.id,
+        })),
       },
     ])
-    .then(({ bookId }) => {
-      const book = Book.findById(bookId);
+    .then(({ studentId }) => {
+      const student = Student.findById(studentId);
       inquirer
         .prompt([
           {
-            name: "title",
-            message: "Enter new title (leave blank to keep current):",
+            name: "firstName",
+            message: "Enter new firstName (leave blank to keep current):",
           },
           {
-            name: "author",
-            message: "Enter new author (leave blank to keep current):",
+            name: "lastName",
+            message: "Enter new lastName (leave blank to keep current):",
           },
           {
-            name: "genre",
-            message: "Enter new genre (leave blank to keep current):",
+            name: "grade",
+            message: "Enter new grade (leave blank to keep current):",
           },
           {
-            name: "published",
+            name: "yearOfBirth",
             type: "input",
-            message: "Enter new published year (leave blank to keep current):",
+            message:
+              "Enter new yearOfBirth year (leave blank to keep current):",
             validate: (year) => {
               const yearNum = parseInt(year, 10);
               if (isNaN(yearNum)) {
@@ -75,27 +89,27 @@ export function updateBook() {
               }
               return (
                 yearNum <= new Date().getFullYear() ||
-                "This book was published in the future??"
+                "This student was yearOfBirth in the future??"
               );
             },
           },
         ])
         .then((updates) => {
-          const { title, author, genre, published } = updates;
-          if (title) book.title = title;
-          if (author) book.author = author;
-          if (genre) book.genre = genre;
-          if (published) book.published = published;
-          console.log(`Updated ${book.title}.`);
+          const { firstName, lastName, grade, yearOfBirth } = updates;
+          if (firstName) student.firstName = firstName;
+          if (lastName) student.lastName = lastName;
+          if (grade) student.grade = grade;
+          if (yearOfBirth) student.yearOfBirth = yearOfBirth;
+          console.log(`Updated ${student.firstName}.`);
           showMenu();
         });
     });
 }
 
-export function deleteBook() {
-  const books = Book.find();
-  if (books === 0) {
-    console.log("No books available to delete.");
+export function deleteStudent() {
+  const students = Student.find();
+  if (students === 0) {
+    console.log("No students available to delete.");
     return showMenu();
   }
 
@@ -103,25 +117,57 @@ export function deleteBook() {
     .prompt([
       {
         type: "list",
-        name: "bookId",
-        message: "Choose a book to delete:",
-        choices: books.map((book) => ({ name: book.title, value: book.id })),
+        name: "studentId",
+        message: "Choose a student to delete:",
+        choices: students.map((student) => ({
+          name: student.firstName,
+          value: student.id,
+        })),
       },
     ])
-    .then(({ bookId }) => {
-      Book.delete(bookId);
-      console.log(`Deleted book: "${bookId}".`);
+    .then(({ studentId }) => {
+      Student.delete(studentId);
+      console.log(`Deleted student: "${studentId}".`);
       showMenu();
     });
 }
 
-export function viewBooks() {
-  const books = Book.find();
-  console.log("\nCurrent Book Catalgoue:");
-  if (books.length === 0) {
-    console.log("No books in the catalgoue.");
+export function viewStudents() {
+  const students = Student.find();
+
+  console.log("\nCurrent Student Catalgoue:");
+  if (students.length === 0) {
+    console.log("No students in the catalgoue.");
   } else {
-    console.table(books, ["title", "author", "genre", "published"]);
+    console.table(students, ["firstName", "lastName", "grade", "yearOfBirth"]);
   }
   showMenu();
+}
+export function searchStudent() {
+  inquirer
+    .prompt([
+      {
+        name: "firstName",
+        message: "Enter the student's first name to search:",
+      },
+    ])
+    .then(({ firstName }) => {
+      const students = Student.find();
+      const results = students.filter(
+        (student) => student.firstName.toLowerCase() === firstName.toLowerCase()
+      );
+
+      if (results.length === 0) {
+        console.log("No students found with that first name.");
+      } else {
+        console.log("\nSearch Results:");
+        console.table(results, [
+          "firstName",
+          "lastName",
+          "grade",
+          "yearOfBirth",
+        ]);
+      }
+      showMenu();
+    });
 }
